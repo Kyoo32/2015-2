@@ -1,0 +1,23 @@
+
+
+abstract Class Unit{
+	int x, y;
+	abstract void move(int x, int y);
+	void stop(){};
+}
+
+Class Marine extends Unit{
+	void move(int x, int y){};
+	void stimpack(){};
+}
+
+Class Tank extends Unit{
+	void move(int x, int y){};
+	void changeMode(){};
+}
+
+Class Dropship extends Unit{
+	void move(int x, int y){};
+	void load(){};
+	void unload(){};
+}

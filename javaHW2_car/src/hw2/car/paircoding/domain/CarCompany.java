@@ -10,9 +10,6 @@ public class CarCompany {
 	
 	private String companyName;
 	
-	public Integer getTotalCarWorth() {
-		return accountant.getTotalCarWorth(inventory);
-	}	
 	
 	private CarCompany(String companyName){
 		this.companyName = companyName;
@@ -29,4 +26,9 @@ public class CarCompany {
 		}
 		return hyundai;
 	}
+	
+	public Integer getTotalCarWorth() {
+		return accountant.getTotalCarWorth(inventory);
+	}	
+	
 }

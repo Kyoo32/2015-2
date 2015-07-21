@@ -8,6 +8,7 @@ import hw2.car.paircoding.car.Granger;
 import hw2.car.paircoding.car.Sonata;
 
 public class CarInventory {
+	
 		private ArrayList<Car> carList = new ArrayList<Car>();
 
 		private Integer sonataStock = 0;
