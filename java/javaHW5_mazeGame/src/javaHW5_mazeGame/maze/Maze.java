@@ -1,10 +1,12 @@
 package javaHW5_mazeGame.maze;
 
 
-import searchStrategy.SearchStrategy;
+import searchStrategy.SearchExitInterface;
 
 public abstract class Maze{
-		
+	
+	int[][] maze; 
+	
 	public abstract void printMaze();
-	public abstract void search(SearchStrategy st);
+	public abstract void search(SearchExitInterface st);
 }
