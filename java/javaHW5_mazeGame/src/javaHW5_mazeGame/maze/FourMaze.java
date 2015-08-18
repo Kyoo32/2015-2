@@ -6,14 +6,15 @@ public  class FourMaze  extends Maze{
 	
 	int[][] maze = { 
 			{0, 1, 0, 1} ,
-			{0, 0, 0, 0} ,
-			{1, 0, 1, 0},
+			{0, 0, 1, 0} ,
+			{1, 0, 0, 1},
 			{1, 1 ,0, 0}
 	}; //0 is path, 1 is wall.
 	
 	@Override
 	public void printMaze() {
 		
+		System.out.println("◁▲▽▶Welcome to Maze(4X4)◀▽▲▷\n");
 		System.out.println("   0  1  2  3");
 		System.out.println(" ┏━━━━━━━━┓");
 		for(int i=0; i<maze.length;i++){

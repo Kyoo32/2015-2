@@ -18,7 +18,7 @@ public class EightMaze extends Maze{
 	@Override
 	public void printMaze() {
 		
-		
+		System.out.println("◁▲▽▶Welcome to Maze(8X8)◀▽▲▷\n");
 		System.out.println("   0  1  2  3  4  5  6  7 ");
 		System.out.println(" ┏━━━━━━━━━━━━━━━━┓");
 		for(int i=0; i<maze.length; i++){
