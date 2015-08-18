@@ -36,7 +36,7 @@ public  class FourMaze  extends Maze{
 	public void search(SearchExitInterface st) {
 	
 		st.searchExit(maze);
-		
+		st.printExit();
 		
 	}
 

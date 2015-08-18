@@ -31,16 +31,7 @@ public class SearchEightByStack implements SearchExitInterface {
 		while( !(present[0]==7 && present[1]==7) ) {
 			
 			if(directionIdx == 8 && canGo == false){
-				
-				/*
-				 * present = stack.pop();
-				 
-			
-				System.out.println("pop");
-				System.out.printf("db: %3d, %3d \n", present[0].intValue(), present[1].intValue());
-			*/ 
-				this.printExit();
-				break;
+				present = stack.pop();
 			}	
 			
 			visited[present[0]][present[1]] = 1;
@@ -54,17 +45,18 @@ public class SearchEightByStack implements SearchExitInterface {
 				
 				if(tdw[nextX][nextY] == 0 && visited[nextX][nextY] !=1) {
 					canGo = true;
-					//System.out.println("PUSH : " + present[0] + present[1]);
-					//stack.push(present);
+					Integer[] tobePushed = new Integer[2];
+					tobePushed[0] = present[0];
+					tobePushed[1] = present[1];
+					stack.push(tobePushed);
 					
 					present[0] =nextX; 
 					present[1] =nextY;		
 					break;
 				}		
-			}
-		
-			
+			}	
 		}
+		stack.push(present);
 		
 	}
 
@@ -74,6 +66,7 @@ public class SearchEightByStack implements SearchExitInterface {
 	public void printExit() {
 		
 		System.out.println("To go out, follow the below way: ");
+		
 		Iterator<Integer[]> itr = stack.iterator();
 		int i=0;
 				
@@ -86,8 +79,9 @@ public class SearchEightByStack implements SearchExitInterface {
 				if(i != (tempPoint.length-1) ) System.out.print(" , "); 
 			}
 			System.out.print(")");
-			if(i != (tempPoint.length -1) ) System.out.print(" -> "); 
+			if(itr.hasNext()) System.out.print(" -> "); 
 		}
+		
 		
 		System.out.println("");	
 	}
