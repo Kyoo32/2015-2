@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java0703/src"/>
+	<classpathentry kind="src" path="java0710_17/src"/>
+	<classpathentry kind="src" path="java0710/src"/>
+	<classpathentry kind="src" path="java0731/src"/>
+	<classpathentry kind="src" path="java0807/src"/>
+	<classpathentry kind="src" path="javaHW1_date/src"/>
+	<classpathentry kind="src" path="javaHW2_car/src"/>
+	<classpathentry kind="src" path="javaHW3_jungsuck_and_gameLevel/src"/>
+	<classpathentry kind="src" path="javaHW4_student_information_system/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="java0703/bin"/>
+</classpath>
