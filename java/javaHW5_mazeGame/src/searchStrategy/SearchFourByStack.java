@@ -14,7 +14,7 @@ public class SearchFourByStack implements SearchExitInterface{
 		Integer[] present = new Integer[2];
 		present[0] = Integer.valueOf(0);
 		present[1] = Integer.valueOf(0);
-		
+		/*
 		int directionIdx = 0;
 		int[][] visited = { {0,0,0,0},
 							{0,0,0,0},
@@ -53,6 +53,49 @@ public class SearchFourByStack implements SearchExitInterface{
 		}
 		stack.push(present);
 			
+		*/
+		int directionIdx = 0;
+		int[][] visited = { {0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0}
+			};
+		boolean canGo = false;
+		
+		while( !(present[0]==7 && present[1]==7) ) {
+		
+		if(directionIdx == 4 && canGo == false){
+			present = stack.pop();
+		}	
+		
+		visited[present[0]][present[1]] = 1;
+		canGo = false;
+		
+		for(directionIdx = 0; directionIdx < direction.length; directionIdx++){
+			int nextX = present[0] + direction[directionIdx][0];
+			int nextY = present[1] + direction[directionIdx][1];
+			
+			if(nextX<0 ||nextY<0 ||nextX>7 || nextY>7) continue;
+			
+			if(tdw[nextX][nextY] == 0 && visited[nextX][nextY] !=1) {
+				canGo = true;
+				Integer[] tobePushed = new Integer[2];
+				tobePushed[0] = present[0];
+				tobePushed[1] = present[1];
+				stack.push(tobePushed);
+				
+				present[0] =nextX; 
+				present[1] =nextY;		
+				break;
+			}		
+		}	
+		}
+		stack.push(present);
+
 		
 	}
 

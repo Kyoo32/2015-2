@@ -1,39 +1,35 @@
-package arraylist;
+package treemap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 
-public class AccountManagerArrayList {
+public class AccountManagerTreeMap {
 
-	public ArrayList<Account> accounts;
+	public TreeMap<AccountNumber, Account> accounts;
 	
-	public AccountManagerArrayList(){
-		this(10);
-	}
 
-	public AccountManagerArrayList(int size) {
-		accounts = new ArrayList<Account>(size);
+	public AccountManagerTreeMap() {
+		accounts = new TreeMap<AccountNumber, Account>();
 	}
 	
-	public void insertAccount(String accountNumber, String accountName, float balance){
+	public void insertAccount(AccountNumber accountNumber, String accountName, float balance){
 		Account account = new Account(accountNumber, accountName, balance);
-		accounts.add(account);
+		accounts.put(accountNumber, account);
 	}
 	
 	public void setDeposite(String accountNumber, float money){
 		
-		
-		
-		
-		Iterator<Account> ir = accounts.iterator();
+		/*
+		Iterator<String> ir = accounts.keySet().iterator();
 		while(ir.hasNext()){
-			Account tempAccount = ir.next();
+			String tempAccount = ir.next();
 			if(tempAccount.getAccountNumber().equals(accountNumber)){
 				tempAccount.deposite(money);
-				return ;
+				return;
 			}			
 		}
+		*/
 		/*
 		for(int i=0; i<accounts.size() ; i++){
 			Account tempAccount = accounts.get(i);
@@ -49,15 +45,14 @@ public class AccountManagerArrayList {
 	}
 	
 	public void displayAll(){
-		
-		
-		Iterator<Account> ir= accounts.iterator();
+		Iterator<AccountNumber> ir=accounts.keySet().iterator();
 		while(ir.hasNext()){
 			System.out.println(ir.next());		
 		
 		}
-	
-		//System.out.println(accounts);
+		
+		
+		System.out.println(accounts);
 		/*
 		for(int i=0; i<accounts.size() ; i++){
 			Account tempAccount = accounts.get(i);

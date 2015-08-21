@@ -24,7 +24,7 @@ public class MainRunner {
 		
 		if(searchType.equals("4")){
 			search = new SearchFourByStack();
-			maze = new FourMaze();
+			//maze = new FourMaze();
 		}
 		
 		maze.printMaze();
