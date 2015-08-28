@@ -29,7 +29,6 @@ char prompt[] = "myshell> ";
 const char delim[] = " \t\n";
 static char perms_buff[30];
 
-/* 전역 변수 선언 */
 
 
 /* 함수 선언 */
@@ -50,10 +49,12 @@ int make_directory(int argc, char **argv);
 int remove_directory(int argc, char **argv);
 int copy_directory(int argc, char **argv);
 int concatenate(int argc, char** argv);
-
 int print_working_directory(void);
 
+//파일 사용자 권한 문자열처리 함수
 const char* my_sperms(mode_t mode);
+
+
 
 /*
  * main - MyShell's main routine
@@ -82,6 +83,7 @@ int main()
 	/* 프로그램이 도달하지 못한다. */
 	return 0;
 }
+
 
 
 /*
@@ -171,15 +173,16 @@ int parse_line(char *cmdline, char **argv)
  */
 int builtin_cmd(int argc, char **argv)
 {
-    
 	// 내장 명령어 문자열과 argv[0]을 비교하여 각각의 처리 함수 호출
+    
+    
+    
 	if ( (!strcmp(argv[0], "quit") || (!strcmp(argv[0], "exit")))){
        		exit(0);
 	}
     else if(!strcmp(argv[0], "ls") || !strcmp(argv[0], "ll")){
         list_files(argc, argv);
     }
-   
     else if(!strcmp(argv[0],"cp")){
         copy_file(argc,  argv);
     }
@@ -205,17 +208,22 @@ int builtin_cmd(int argc, char **argv)
         int nResult = concatenate(argc, argv);
         if( nResult == -1) printf("concatenate error\n");
     }
-
-
-	// 내장 명령어가 아님.
+    else{
+        printf("no such command\n");
+    }// 내장 명령어가 아님.
+    
+    
 	return 1;
 }
 
 
+/* 내장 명령 처리 함수들 :argc, argv를 인자로 받는다.*/
+
+
 /*
+ * list_files
  *
- * 내장 명령 처리 함수들
- * argc, argv를 인자로 받는다.
+ * ls, ll, ls >, ll > 처리
  *
  */
 int list_files(int argc, char **argv)
@@ -230,14 +238,21 @@ int list_files(int argc, char **argv)
     struct tm lt;
     int fd, saved_stdout = 1;
     
+    // 인자가 3개 초과면 에러처리
+    if(argc > 3) {
+        perror("too many arguments\n");
+        return -1;
+    }
     
     //리다이렉션 여부 확인하여 스트림 바꿔주기
     if(argc>1 && !strcmp(argv[1], ">")){
         
         
         fd = creat(argv[2], DEFAULT_FILE_MODE);
-        if(fd < 0) return 1;
-        
+        if(fd < 0) {
+            perror("file open error\n");
+            return -1;
+        }
         saved_stdout = dup(1);
         dup2(fd, 1);
         close(fd);
@@ -247,7 +262,7 @@ int list_files(int argc, char **argv)
     dp = opendir(".");
     if (dp == NULL){
         perror("directory open errror\n");
-        return 1;
+        return -1;
     }
     
     d_entry = readdir(dp);
@@ -261,21 +276,21 @@ int list_files(int argc, char **argv)
         while( d_entry != NULL){
             ret =stat(d_entry->d_name, &sb);
             if(ret){
-                perror("stat");
-            return 1;
+                perror("read stat error\n");
+            return -1;
             }
             
             t = sb.st_atime;
             localtime_r(&t, &lt);
             strftime(buff, sizeof buff, "%b %d %T", &lt);
             
-            printf("%10.10s %2hu %5u %3u %8lld %s %s \n", my_sperms(sb.st_mode), sb.st_nlink, sb.st_uid, sb.st_gid, sb.st_size, buff,  d_entry->d_name);
+            printf("%10.10s %2hu %5u %3u %8ld %s %s \n", my_sperms(sb.st_mode), sb.st_nlink, sb.st_uid, sb.st_gid, sb.st_size, buff,  d_entry->d_name);
             d_entry = readdir(dp);
         }
     }
     closedir(dp);
     
-    
+    //리다이렉션 시, 표준출력스트림 재정의하기
     if(argc>1 && !strcmp(argv[1], ">")){
         dup2(saved_stdout, 1);
     }
@@ -283,50 +298,102 @@ int list_files(int argc, char **argv)
 	return 0;
 }
 
-
+/*
+ * copy_file
+ *
+ * cp [src file] [dst file]
+ *
+ */
 int copy_file(int argc, char **argv)
 {
+    
+    // 인자가 3개 미만면 에러처리
+    if(argc < 3) {
+        perror("lack argument\n");
+        return -1;
+    }
+    
     int nResult = inner_file_copy(argv[1], argv[2]);
     
     if(nResult == -1){
-        perror("파일 복사 실패\n");
+        perror("file copy error\n");
     }
 	return 0;
 }
 
+/*
+ * move_file
+ *
+ * mv [src file] [dst file]
+ *
+ */
 int move_file(int argc, char **argv){
+    
+    // 인자가 3개 미만이면 에러처리
+    if(argc < 3) {
+        perror("lack argument\n");
+        return -1;
+    }
+    
     int nResult = rename( argv[1], argv[2] );
     
     if( nResult == -1 )
     {
-        perror( "이름 변경 실패 - \n" );
+        perror( "move file error\n" );
     }
     
     return 0;
 }
+
+/*
+ * remove_file
+ *
+ * rm [file]
+ *
+ */
 int remove_file(int argc, char **argv)
 {
+    // 인자가 2개 미만이면 에러처리
+    if(argc < 2) {
+        perror("lack argument\n");
+        return -1;
+    }
     int nResult = remove(argv[1] );
     
     if( nResult == -1 )
     {
-        perror( "파일 삭제 실패\n" );
+        perror( "remove file error\n" );
     }
 
 	return 0;
 }
 
-
+/*
+ * change_directory
+ *
+ * cd [dst directory]
+ *
+ */
 int change_directory(int argc, char **argv)
 {
+    // 인자가 2개 미만이면 에러처리
+    if(argc < 2) {
+        perror("lack argument\n");
+        return -1;
+    }
     int nResult = chdir(argv[1]);
-    printf("!!%s\n", argv[1]);
     if( nResult == -1 ){
-        printf("해당 이름의 디렉토리가 없습니다.\n");
+        printf("no such directory\n");
     };
 	return 0;
 }
 
+/*
+ * print_working_directory
+ *
+ * show working directory
+ * pwd
+ */
 int print_working_directory(void)
 {
     char buff[MAXBUFF];
@@ -335,32 +402,87 @@ int print_working_directory(void)
 	return 0;
 }
 
-
+/*
+ * make_directory
+ * 
+ * mkdir [directory name]
+ *
+ */
 int make_directory(int argc, char **argv)
 {
+    // 인자가 2개 미만이면 에러처리
+    if(argc < 2) {
+        perror("lack argument\n");
+        return -1;
+    }
+    
     int nResult = mkdir(argv[1], DEFAULT_DIR_MODE );
     
     if( nResult == -1 )
     {
-        perror( "폴더 생성 실패 - 폴더가 이미 있거나 부정확함\n" );
-        printf( "errorno : %d", errno );
+        perror( "such directory already exists or wrong name\n" );
     }
 
 	return 0;
 }
 
-
+/*
+ * remove_directory
+ *
+ * rmdir [directory name]
+ *
+ */
 int remove_directory(int argc, char **argv)
 {
-    int nResult = rmdir(argv[1]);
+    // 인자가 2개 미만이면 에러처리
+    if(argc < 2) {
+        perror("lack argument\n");
+        return -1;
+    }
+    int nResult = remove(argv[1]);
    
     if( nResult == -1 )
     {
-        perror( "폴더 삭제 실패 - 폴더 안에 파일이 있거나 사용중\n" );
-        printf( "errorno : %d", errno );
+        perror( "other folder exists in it or used now\n" );
     }
 
 	return 0;
+}
+
+/*
+ * concatenate
+ * show the file
+ * cat [file name]
+ */
+int concatenate(int argc, char** argv){
+    
+    // 인자가 2개 미만이면 에러처리
+    if(argc < 2) {
+        perror("lack argument\n");
+        return -1;
+    }
+    
+    int in_fd, rd_count, standard_out = 1;
+    char buffer[MAXBUFF];
+    
+    if(argc > 2) return -1;
+    
+    if( (in_fd = open(argv[1] , O_RDONLY))< 0)
+        return -1;
+    
+    while(1){
+        if(  (rd_count = read(in_fd, buffer, 2048) ) <= 0  )
+            break;
+        if( (write(standard_out, buffer, rd_count) <= 0 ))
+            return -1;
+    }
+    
+    
+    if( rd_count < 0 )  return -1;
+    close(in_fd);
+    
+    
+    return 0;
 }
 
 //3단계 구현 목표
@@ -370,7 +492,7 @@ int copy_directory(int argc, char **argv)
 	return 0;
 }
 
-                        
+//file copy 수행 함수
 int inner_file_copy(const char* src, const char* dst){
     FILE *in, *out;
     char* buf;
@@ -382,7 +504,7 @@ int inner_file_copy(const char* src, const char* dst){
     
     if ((buf = (char *) malloc(MAXBUFF)) == NULL) { fclose(in); fclose(out); return 10; } // 버퍼 메모리 할당
     
-    while ( (len = fread(buf, sizeof(char), sizeof(buf), in)) != NULL )
+    while ( (len = fread(buf, sizeof(char), sizeof(buf), in)) != (int)NULL )
         if (fwrite(buf, sizeof(char), len, out) == 0) {
             fclose(in); fclose(out);
             free(buf);
@@ -396,33 +518,7 @@ int inner_file_copy(const char* src, const char* dst){
     return 0;
 }
 
-
-int concatenate(int argc, char** argv){
-    
-    int in_fd, rd_count, standard_out = 1;
-    char buffer[MAXBUFF];
-    
-    if(argc > 2) return -1;
-    
-    if( (in_fd = open(argv[1] , O_RDONLY))< 0)
-        return -1;
-   
-    while(1){
-        if(  (rd_count = read(in_fd, buffer, 2048) ) <= 0  )
-            break;
-        if( (write(standard_out, buffer, rd_count) <= 0 ))
-           return -1;
-    }
-    
-    
-    if( rd_count < 0 )  return -1;
-    close(in_fd);
-
-    
-    return 0;
-}
-
-
+//파일 사용자 권한 문자열처리 함수
 const char* my_sperms(mode_t mode)
 {
     char ftype = '?';
