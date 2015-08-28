@@ -27,7 +27,7 @@
 /* 전역 변수 정의 */
 char prompt[] = "myshell> ";
 const char delim[] = " \t\n";
-
+static char perms_buff[30];
 
 /* 전역 변수 선언 */
 
@@ -53,6 +53,7 @@ int concatenate(int argc, char** argv);
 
 int print_working_directory(void);
 
+const char* my_sperms(mode_t mode);
 
 /*
  * main - MyShell's main routine
@@ -229,6 +230,7 @@ int list_files(int argc, char **argv)
     struct tm lt;
     int fd, saved_stdout = 1;
     
+    
     //리다이렉션 여부 확인하여 스트림 바꿔주기
     if(argc>1 && !strcmp(argv[1], ">")){
         
@@ -267,7 +269,7 @@ int list_files(int argc, char **argv)
             localtime_r(&t, &lt);
             strftime(buff, sizeof buff, "%b %d %T", &lt);
             
-            printf("%10hu %2hu %5u %3u %8lld %s %s \n", sb.st_mode, sb.st_nlink, sb.st_uid, sb.st_gid, sb.st_size, buff,  d_entry->d_name);
+            printf("%10.10s %2hu %5u %3u %8lld %s %s \n", my_sperms(sb.st_mode), sb.st_nlink, sb.st_uid, sb.st_gid, sb.st_size, buff,  d_entry->d_name);
             d_entry = readdir(dp);
         }
     }
@@ -325,12 +327,11 @@ int change_directory(int argc, char **argv)
 	return 0;
 }
 
-/////////////
 int print_working_directory(void)
 {
-    char buff[80];
-    getcwd(buff,sizeof(buff));
-    printf("??%s \n", buff);
+    char buff[MAXBUFF];
+    getcwd(buff,MAXBUFF);
+    printf("%s \n", buff);
 	return 0;
 }
 
@@ -399,7 +400,7 @@ int inner_file_copy(const char* src, const char* dst){
 int concatenate(int argc, char** argv){
     
     int in_fd, rd_count, standard_out = 1;
-    char buffer[2048];
+    char buffer[MAXBUFF];
     
     if(argc > 2) return -1;
     
@@ -419,4 +420,32 @@ int concatenate(int argc, char** argv){
 
     
     return 0;
+}
+
+
+const char* my_sperms(mode_t mode)
+{
+    char ftype = '?';
+    if (S_ISREG(mode)) ftype = '-';
+    if (S_ISLNK(mode)) ftype = 'l';
+    if (S_ISDIR(mode)) ftype = 'd';
+    if (S_ISBLK(mode)) ftype = 'b';
+    if (S_ISCHR(mode)) ftype = 'c';
+    if (S_ISFIFO(mode)) ftype = '|';
+    //if (S_ISINDEX(mode)) ftype = 'i';
+    sprintf(perms_buff, "%c%c%c%c%c%c%c%c%c%c %c%c%c",
+            ftype,
+            mode & S_IRUSR ? 'r' : '-',
+            mode & S_IWUSR ? 'w' : '-',
+            mode & S_IXUSR ? 'x' : '-',
+            mode & S_IRGRP ? 'r' : '-',
+            mode & S_IWGRP ? 'w' : '-',
+            mode & S_IXGRP ? 'x' : '-',
+            mode & S_IROTH ? 'r' : '-',
+            mode & S_IWOTH ? 'w' : '-',
+            mode & S_IXOTH ? 'x' : '-',
+            mode & S_ISUID ? 'U' : '-', 
+            mode & S_ISGID ? 'G' : '-', 
+            mode & S_ISVTX ? 'S' : '-'); 
+    return (const char *)perms_buff; 
 }
