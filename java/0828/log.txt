@@ -1,0 +1,28 @@
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+FINEST: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+FINER: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+FINE: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+CONFIG: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+INFO: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+WARNING: test
+Aug 28, 2015 10:41:01 AM logging.MyLogger log
+SEVERE: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+FINEST: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+FINER: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+FINE: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+CONFIG: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+INFO: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+WARNING: test
+Aug 28, 2015 10:41:51 AM logging.MyLogger log
+SEVERE: test

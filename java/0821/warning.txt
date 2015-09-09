@@ -1,0 +1,4 @@
+Aug 28, 2015 11:06:18 AM logging.MyLogger warning
+WARNING: name must not be null.
+Aug 28, 2015 11:06:18 AM logging.MyLogger warning
+WARNING: your name is too long.
