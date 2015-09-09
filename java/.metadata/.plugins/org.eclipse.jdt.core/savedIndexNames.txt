@@ -1,0 +1,8 @@
+INDEX VERSION 1.127+/Users/katekyuwon/Documents/git.NEXT2015_2/2015-2/java/.metadata/.plugins/org.eclipse.jdt.core
+711978663.index
+2698029872.index
+677361136.index
+2593320878.index
+524126782.index
+318950782.index
+3813562122.index

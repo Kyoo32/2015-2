@@ -1,0 +1,13 @@
+package factory;
+
+import factory.Product;
+
+public class IDCard extends Product {
+
+	@Override
+	public void use() {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
