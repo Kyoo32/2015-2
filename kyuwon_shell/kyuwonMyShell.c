@@ -98,15 +98,17 @@ void process_cmd(char *cmdline)
 {
 	int argc;
 	char *argv[MAXARGS];
-
+   
 	// 명령 라인을 해석하여 인자 (argument) 배열로 변환한다.
 	argc = parse_line(cmdline, argv);
-	
+    if (argc == 0) return ;
+    
     /*
         // 명령 확인용
 	int i=0;
 	for(i=0; i <argc; i++){
-		printf("%s ",argv[i]);
+       
+		printf("@%s ",argv[i]);
 	}
 	printf("\n");
     */
@@ -122,18 +124,100 @@ void process_cmd(char *cmdline)
 	/*
 	 * 자식 프로세스를 생성하여 프로그램을 실행한다.
 	 */
-
+    pid_t pid, pid2;
+    int pipefd[2];
+    int hasPipe = 0;
+    int i=0;
+    
+    for(i=0; i< argc; i++){
+        if(!strcmp(argv[i], "|")){
+            hasPipe = 1;
+            break;
+        }
+    }
+    
 	// 프로세스 생성
+   
+    if(hasPipe){
+        if(pipe(pipefd) == -1) return ;
+    }
+    
+    pid = fork();
+    if(hasPipe){
+        pid2 = fork();
+        if(pid2 == 0){
+            close(pipefd[1]);
+            dup2(pipefd[0], STDIN_FILENO);
+        }
+    }
+    
+    if(pid < 0){
+        //fork error
+        fprintf(stderr, "1Fork failed");
+        return;
 
+    }
+    else if(pid ==0){
+        
+        if(*argv[argc-1] == '&') {
+            printf("[bg] %d : %s \n", getpid(), argv[0]);
+            int k = 0;
+            for(k=0;k<10;k++){
+                printf("background job...(%d)\n", k+1);
+                sleep(1);
+                
+            }
+            return ;
+        }
+        else {
+            if(hasPipe){
+                close(pipefd[0]);
+                dup2(pipefd[1], STDOUT_FILENO);
+                
+                char* temp[MAXARGS];
+                for(int j=0; j<i; j++){
+                    printf("???\n");
+                    temp[j] = argv[j];
+                    printf("~~%s\n", temp[j]);
+                    printf("!!!\n");
 
-	// 자식 프로세스에서 프로그램 실행
-
-
+                }
+            
+              //  execvp(temp[0], temp);
+            }
+          //  else{
+                execvp(argv[0], argv);
+           // }
+        }
+        
+    }
 	// 파이프 실행이면 자식 프로세스를 하나 더 생성하여 파이프로 연결
-
-
+    
+    if(hasPipe){
+        char * temp = argv[i +1];
+        char ** temp2 = argv + (i+1);
+        // printf("!!!!%s\n", *(argv +(i+1)));
+        execvp(temp, temp2);
+        //fork error
+        fprintf(stderr, "2Fork failed");
+        return;
+    }
+    
 	// foreground 실행이면 자식 프로세스가 종료할 때까지 기다린다.
-
+    if(pid >0){
+        if(hasPipe){
+            close(pipefd[0]);
+            close(pipefd[1]);
+            waitpid(pid2, NULL, 0);
+        }
+        
+        if( *argv[argc-1] == '&'){
+            while( waitpid(-1, NULL, WNOHANG)!=0 );
+        }
+        else{
+            wait(NULL);
+        }
+    }
 	return;
 }
 
@@ -160,6 +244,7 @@ int parse_line(char *cmdline, char **argv)
         
     }
     argc = i;
+    
     return argc;
 }
 
@@ -173,10 +258,22 @@ int parse_line(char *cmdline, char **argv)
  */
 int builtin_cmd(int argc, char **argv)
 {
-	// 내장 명령어 문자열과 argv[0]을 비교하여 각각의 처리 함수 호출
+    //리다이렉션 여부 확인하여 스트림 바꿔주기
+    int fd, saved_stdout = 1;
+    if(argc>1 && !strcmp(argv[1], ">")){
     
+        
+        fd = creat(argv[2], DEFAULT_FILE_MODE);
+        if(fd < 0) {
+            perror("file open error\n");
+            return -1;
+        }
+        saved_stdout = dup(1);
+        dup2(fd, 1);
+        close(fd);
+    }
     
-    
+    // 내장 명령어 문자열과 argv[0]을 비교하여 각각의 처리 함수 호출
 	if ( (!strcmp(argv[0], "quit") || (!strcmp(argv[0], "exit")))){
        		exit(0);
 	}
@@ -209,11 +306,16 @@ int builtin_cmd(int argc, char **argv)
         if( nResult == -1) printf("concatenate error\n");
     }
     else{
-        printf("no such command\n");
+        //printf("no such command\n");
+        return 1;
     }// 내장 명령어가 아님.
     
+    //리다이렉션 시, 표준출력스트림 재정의하기
+    if(argc>1 && !strcmp(argv[1], ">")){
+        dup2(saved_stdout, 1);
+    }
     
-	return 1;
+	return 0;
 }
 
 
@@ -236,28 +338,13 @@ int list_files(int argc, char **argv)
     char buff[40];
     time_t t = (time_t)NULL;
     struct tm lt;
-    int fd, saved_stdout = 1;
     
     // 인자가 3개 초과면 에러처리
     if(argc > 3) {
         perror("too many arguments\n");
         return -1;
     }
-    
-    //리다이렉션 여부 확인하여 스트림 바꿔주기
-    if(argc>1 && !strcmp(argv[1], ">")){
-        
-        
-        fd = creat(argv[2], DEFAULT_FILE_MODE);
-        if(fd < 0) {
-            perror("file open error\n");
-            return -1;
-        }
-        saved_stdout = dup(1);
-        dup2(fd, 1);
-        close(fd);
-    }
-    
+   
     
     dp = opendir(".");
     if (dp == NULL){
@@ -289,11 +376,6 @@ int list_files(int argc, char **argv)
         }
     }
     closedir(dp);
-    
-    //리다이렉션 시, 표준출력스트림 재정의하기
-    if(argc>1 && !strcmp(argv[1], ">")){
-        dup2(saved_stdout, 1);
-    }
     
 	return 0;
 }
@@ -471,7 +553,7 @@ int concatenate(int argc, char** argv){
         return -1;
     
     while(1){
-        if(  (rd_count = read(in_fd, buffer, 2048) ) <= 0  )
+        if(  (rd_count = read(in_fd, buffer, 1024) ) <= 0  )
             break;
         if( (write(standard_out, buffer, rd_count) <= 0 ))
             return -1;
@@ -485,7 +567,7 @@ int concatenate(int argc, char** argv){
     return 0;
 }
 
-//3단계 구현 목표
+//4단계 구현 목표
 int copy_directory(int argc, char **argv)
 {
     
