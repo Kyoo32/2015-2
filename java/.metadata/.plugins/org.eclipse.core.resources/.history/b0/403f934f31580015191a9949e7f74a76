@@ -1,0 +1,36 @@
+package innerClass;
+
+class Outer
+{
+	private int outer1 = 100;
+	Inner inner;
+	class Inner
+	{
+		String str = "hello";
+		public void test(){
+			System.out.println(str);
+			System.out.println(outer1);
+		}
+	}
+	
+	
+	public Outer(){
+		inner = new Inner();
+	}
+	
+	public void outTest(){
+		inner.test();
+	}
+}
+
+public class InnerClassTest {
+
+	public static void main(String[] args) {
+		Outer outer = new Outer();
+		outer.outTest();
+		
+		Outer.Inner in = outer.new Inner();
+		in.test();
+	}
+
+}

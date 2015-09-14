@@ -1,0 +1,54 @@
+package thread;
+
+import java.util.ArrayList;
+
+class Library{
+	public ArrayList<String> nextShelf = new ArrayList<String>();
+	
+	public Library(){
+		nextShelf.add("apple");
+		nextShelf.add("bpple");
+		nextShelf.add("cpple");
+		nextShelf.add("dpple");
+		nextShelf.add("epple");
+	}
+	
+	public String lendBook(){
+		Thread t = Thread.currentThread();
+		String name = nextShelf.remove(0);
+		System.out.println("["+t.getName()+"]" + " lends "+ name);
+		return name;
+	}
+	
+	public void returnBook(String name){
+		Thread t = Thread.currentThread();
+		System.out.println("["+t.getName()+"]" + " returns "+ name);
+		nextShelf.add(name);
+	}
+}
+class Student extends Thread{
+	public void run(){
+		try {
+			String title = LibraryMain.library.lendBook();
+			sleep(5000);
+			LibraryMain.library.returnBook(title);
+			System.out.println(title + " engaged");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+public class LibraryMain {
+
+	public static Library library = new Library();
+	public static void main(String[] args) {
+		Student s1 = new Student();
+		Student s2 = new Student();
+		Student s3 = new Student();
+		
+		s1.start();
+		s2.start();
+		s3.start();
+	}
+
+}
