@@ -104,7 +104,7 @@ void process_cmd(char *cmdline)
     if (argc == 0) return ;
     
     /*
-        // 명령 확인용
+    // 명령 확인용
 	int i=0;
 	for(i=0; i <argc; i++){
        
@@ -124,42 +124,40 @@ void process_cmd(char *cmdline)
 	/*
 	 * 자식 프로세스를 생성하여 프로그램을 실행한다.
 	 */
+    
+    //  파이프 명령어 있을 경우 사용.
     pid_t pid, pid2;
     int pipefd[2];
+    
     int hasPipe = 0;
     int i=0;
     
+    // 파이프 명령어 존재 확인
     for(i=0; i< argc; i++){
         if(!strcmp(argv[i], "|")){
             hasPipe = 1;
+            printf("pipe = %d \n", hasPipe);
             break;
         }
     }
     
-	// 프로세스 생성
-   
+	
+    // 파이프 명령어 있을 떼, 파이프 생성
     if(hasPipe){
         if(pipe(pipefd) == -1) return ;
     }
     
+    // (첫번째 자식) 프로세스 생성
     pid = fork();
-    if(hasPipe){
-        pid2 = fork();
-        if(pid2 == 0){
-            close(pipefd[1]);
-            dup2(pipefd[0], STDIN_FILENO);
-        }
-    }
-    
     if(pid < 0){
         //fork error
         fprintf(stderr, "1Fork failed");
         return;
 
     }
-    else if(pid ==0){
+    else if(pid ==0){ //(첫번째 자식) 프로세서
         
-        if(*argv[argc-1] == '&') {
+        if(*argv[argc-1] == '&') { // 백그라운드 모드 일때
             printf("[bg] %d : %s \n", getpid(), argv[0]);
             int k = 0;
             for(k=0;k<10;k++){
@@ -170,54 +168,80 @@ void process_cmd(char *cmdline)
             return ;
         }
         else {
-            if(hasPipe){
-                close(pipefd[0]);
-                dup2(pipefd[1], STDOUT_FILENO);
-                
-                char* temp[MAXARGS];
-                for(int j=0; j<i; j++){
-                    printf("???\n");
-                    temp[j] = argv[j];
-                    printf("~~%s\n", temp[j]);
-                    printf("!!!\n");
-
-                }
             
-              //  execvp(temp[0], temp);
+            if(hasPipe){ // 파이프 명령어 있을 때
+             
+                close(pipefd[0]);
+
+                if( dup2(pipefd[1], STDOUT_FILENO) < 0 ) {
+                    fprintf(stderr, "pipefd duplicatiion error\n");
+                    return;
+                };
+                // 파이프 이전 명령어, 임시 저장
+                int j=0;
+                char* temp[MAXARGS];
+                for(j=0; j<i; j++){
+                    temp[j] = argv[j];
+                }
+                temp[j] = NULL;
+                fprintf(stderr, "i'm and now\n");
+                if(execvp(temp[0], temp) < 0 ) {
+                    fprintf(stderr, "exec error : 1\n");
+                    return;
+                };
+                fprintf(stderr, "I can't be here\n");
+                
             }
-          //  else{
+            
+            else{ //파이프 명령어 없을 때
                 execvp(argv[0], argv);
-           // }
+            }
         }
         
     }
 	// 파이프 실행이면 자식 프로세스를 하나 더 생성하여 파이프로 연결
-    
     if(hasPipe){
-        char * temp = argv[i +1];
-        char ** temp2 = argv + (i+1);
-        // printf("!!!!%s\n", *(argv +(i+1)));
-        execvp(temp, temp2);
-        //fork error
-        fprintf(stderr, "2Fork failed");
+        pid2 = fork();
+    }
+    if(pid2<0){
+        // fork error
+        fprintf(stderr, "Fork failed");
         return;
     }
-    
-	// foreground 실행이면 자식 프로세스가 종료할 때까지 기다린다.
-    if(pid >0){
-        if(hasPipe){
-            close(pipefd[0]);
-            close(pipefd[1]);
-            waitpid(pid2, NULL, 0);
-        }
+    if(pid2 == 0){
+        close(pipefd[1]);
         
-        if( *argv[argc-1] == '&'){
-            while( waitpid(-1, NULL, WNOHANG)!=0 );
+        if(dup2(pipefd[0], STDIN_FILENO) <0 ){
+            fprintf(stderr, "pipefd duplication error\n");
+            return;
+        };
+        
+        //파이프 이후 명령어 임시 배열 저장
+        int j=0;
+        char* temp[MAXARGS];
+        for(j=i+1; j<argc; j++){
+            temp[j-(i+1)] = argv[j];
         }
-        else{
-            wait(NULL);
-        }
+        temp[j-(i+1)] = NULL;
+        if(execvp(temp[0], temp) < 0 ) {
+            fprintf(stderr, "exec error : 2\n");
+            return;
+        };
     }
+	
+    if(hasPipe){ //파이프 실행 시 부모 프로세스가 파이프를 닫음
+        close(pipefd[0]);
+        close(pipefd[1]);
+        waitpid(pid2, NULL, 0);
+    }
+        
+    if( *argv[argc-1] == '&'){ // foreground 실행이면 자식 프로세스가 종료할 때까지 기다린다.
+        while( waitpid(-1, NULL, WNOHANG)!=0 );
+    }
+    else{
+        waitpid(pid,NULL,0);
+    }
+    
 	return;
 }
 
@@ -243,6 +267,7 @@ int parse_line(char *cmdline, char **argv)
         token = strtok(NULL, delim);
         
     }
+    argv[i] = NULL;
     argc = i;
     
     return argc;
