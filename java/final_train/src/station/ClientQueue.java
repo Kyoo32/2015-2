@@ -7,7 +7,11 @@ import client.Client;
 public class ClientQueue {
 	protected ArrayList<Client> clientQ = new ArrayList<Client>();
 	
-	void enqueue(Client c){
+	public ClientQueue getCq(){
+		return this;
+	};
+	
+	public void enqueue(Client c){
 		clientQ.add(c);
 		c.enqueueTime = System.currentTimeMillis(); 
 	}
@@ -20,5 +24,9 @@ public class ClientQueue {
 		} else {
 			return null;
 		}
+	}
+
+	public int size() {	
+		return clientQ.size();
 	}
 }

@@ -1,0 +1,56 @@
+package station;
+
+import java.util.Date;
+import java.util.TimerTask;
+
+import client.Client;
+
+public class TrainStation extends TimerTask implements Station {
+	ClientQueue cq;
+	
+	public TrainStation(){
+		System.out.println("make q");
+		cq = new ClientQueue();
+		System.out.println(cq);
+	}
+	
+	
+	void enqueue(Client c){
+		System.out.println("la");
+		c.trainWaitingTimeSpent();
+		cq.enqueue(c);
+		System.out.println("lala");
+	}
+	
+		
+	@Override
+	public void calTimeInterval(Object ob) {
+		if(ob instanceof Client){
+			((Client) ob).trainWaitInterval = (int) (((Client)ob).dequeueTime - ((Client)ob).enqueueTime);
+		}
+	}
+
+	@Override
+	public void setDate(Object ob) {
+		if(ob instanceof Client){
+			((Client) ob).arrivalStation = new Date();
+		}
+	}
+
+	@Override
+	public void run() {
+		trainDepart(cq);
+	}
+
+
+	private synchronized void trainDepart(ClientQueue cq2) {
+		int many = cq2.size();
+		for(int i=0; i<many; i++){
+			Client goC = cq2.dequeue();
+			goC.notify();
+			calTimeInterval(goC);
+		}
+		
+	}
+
+}

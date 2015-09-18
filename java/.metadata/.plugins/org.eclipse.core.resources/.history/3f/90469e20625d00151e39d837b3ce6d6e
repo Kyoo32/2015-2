@@ -1,0 +1,38 @@
+package client;
+
+import java.util.Date;
+
+import station.TicketBox;
+
+public class Client extends Thread {
+	int id;
+	String name;
+	
+	int visitTime;
+	int ticketingInterval;
+	String departSName;
+	String destSName;
+	public int ticketWaitInterval;
+	public int trainWaitInterval;
+	
+	public long enqueueTime;
+	public long dequeueTime;
+	//?train running time spend?
+	public Date ticketFinish;
+	public Date arrivalStation;
+	public TicketBox tb;
+	
+	public void run(){
+		try {
+			tb = Main.TicketingStation.match();
+			if(tb == null){
+				System.out.println("[" + this.getName() +"] go back home" );
+				return;
+			}
+			sleep(3000);
+			Main.TicketStation.ticketFinish(tb);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}

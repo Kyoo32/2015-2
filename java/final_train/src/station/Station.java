@@ -1,8 +1,8 @@
 package station;
 
-public abstract class Station {
-	protected ClientQueue cq;
-	
+
+public interface Station {
+
 	abstract void calTimeInterval(Object ob);
 	abstract void setDate(Object ob);
 }

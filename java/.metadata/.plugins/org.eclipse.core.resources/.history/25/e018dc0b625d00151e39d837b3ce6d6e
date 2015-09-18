@@ -1,0 +1,21 @@
+package station;
+
+import java.util.ArrayList;
+
+import client.Client;
+
+public class ClientQueue {
+	protected ArrayList<Client> clientQ = new ArrayList<Client>();
+	
+	void enqueue(Client c){
+		clientQ.add(c);
+	}
+	
+	Client dequeue(){
+		if(!clientQ.isEmpty()){
+			return clientQ.remove(0);
+		} else {
+			return null;
+		}
+	}
+}

@@ -1,0 +1,57 @@
+package main;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Timer;
+
+import client.Client;
+import fileIO.ClientOutput;
+import station.TicketingStation;
+import station.TrainStation;
+
+public class Main {
+	public static TicketingStation ticS = new TicketingStation();
+	public static TrainStation traS = new TrainStation();
+	
+	
+	public static synchronized void main(String[] args) {
+		ClientOutput COut = new ClientOutput();
+		Timer trainTimer = new Timer();
+		trainTimer.schedule(traS, 3000, 3000);
+		
+		FileReader fr = null;
+		BufferedReader br = null;
+		COut.openOutStream();
+		
+		try{		
+			// "ReadFile.txt" 파일을 읽는 FileReader 객체 생성
+			// BufferedReader 객체 생성		
+			fr = new FileReader("client2.txt");
+			br = new BufferedReader(fr);
+			
+			String s = null;
+			String[] sArr;
+			
+			// ReadFile.txt 에서 한줄씩 읽어서 BufferedRaeder에 저장한다.
+			while((s=br.readLine())!=null){		
+				sArr = new String(s).split("%");
+				Client c = new Client(Integer.parseInt(sArr[0]), sArr[1], 
+						Integer.parseInt(sArr[2]), Integer.parseInt(sArr[3]),
+						sArr[4],sArr[5]);
+				c.start();
+				c.join();
+				
+				COut.writeOutput(c);
+			}	
+		} catch(Exception e){	
+			e.printStackTrace();	
+		} finally{
+			
+			// BufferedReader FileReader를 닫아준다.
+			if(br != null) try{br.close();}catch(IOException e){}
+			if(fr != null) try{fr.close();}catch(IOException e){}	
+		}
+		
+		COut.closeOutStream();
+	}
+}

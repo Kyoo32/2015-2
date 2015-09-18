@@ -1,0 +1,13 @@
+package main;
+import station.TicketingStation;
+import station.TrainStation;
+
+public class Main {
+	public static TicketingStation ticS = new TicketingStation();
+	public TrainStation traS = new TrainStation();
+	
+	public static void main(String[] args) {
+		
+		
+	}
+}

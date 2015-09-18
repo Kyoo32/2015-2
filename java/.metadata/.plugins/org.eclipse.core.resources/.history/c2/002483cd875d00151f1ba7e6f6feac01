@@ -1,0 +1,67 @@
+package client;
+
+import java.util.Date;
+
+import station.TicketBox;
+import main.Main;
+
+public class Client extends Thread {
+	int id;
+	String name;
+	
+	int visitTime;
+	public int ticketingInterval;
+	String departSName;
+	String destSName;
+	public int ticketWaitInterval;
+	public int trainWaitInterval;
+	
+	public long enqueueTime;
+	public long dequeueTime;
+	//?train running time spend?
+	public Date ticketFinish;
+	public Date arrivalStation;
+	public TicketBox tb;
+	
+	public Client(int id, String name, int visitTime, int ticketingInterval, String departSName, String destSName){
+		this.id = id;
+		this.name = name;
+		this.visitTime = visitTime;
+		this.ticketingInterval = ticketingInterval;
+		this.departSName = departSName;
+		this.destSName = destSName;
+	}
+	
+	public void run(){
+		this.visitTimeSpent();
+		System.out.println("jb");
+		System.out.println(this.toString());
+		Main.ticS.arrive(this);
+	}
+
+	private void visitTimeSpent() {
+		try {
+			sleep(this.visitTime * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void ticketingTimeSpent() {
+		try {
+			sleep(this.ticketingInterval* 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	public void trainWaitingTimeSpent() {
+		try {
+			this.wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}		
+	}
+	
+}

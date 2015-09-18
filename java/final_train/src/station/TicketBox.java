@@ -1,10 +1,14 @@
 package station;
 
 import client.Client;
+import main.Main;
 
 public class TicketBox {
-	TrainStation ts;
+	
 	public void ticketing(Client c){
-		ts.cq.enqueue(c);
+		c.ticketingTimeSpent();
+		System.out.println("Ticket open@@@@@@");
+		Main.traS.enqueue(c);
 	}
+
 }

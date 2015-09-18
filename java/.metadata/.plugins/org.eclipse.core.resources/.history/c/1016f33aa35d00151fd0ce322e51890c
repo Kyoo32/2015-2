@@ -1,0 +1,21 @@
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+public class ShowInfo {
+	
+	public static void main(String[] args){
+		Class c = Integer.class;
+		System.out.println(c.getName());
+		
+		Constructor[] cons = c.getConstructors();
+		
+		for(Constructor con : cons){
+			System.out.println(con);
+		}
+		
+		Method[] meths= c.getMethods();
+		for(Method meth : meths){
+			System.out.println(meth);
+		}
+	}
+}	

@@ -1,0 +1,12 @@
+import station.TicketingStation;
+import station.TrainStation;
+
+public class Main {
+	TicketingStation ticS = new TicketingStation();
+	TrainStation traS = new TrainStation();
+	
+	public static void main(String[] args) {
+		
+		
+	}
+}

@@ -4,21 +4,36 @@ import java.util.ArrayList;
 import java.util.Date;
 import client.Client;
 
-public class TicketingStation extends Station{
+public class TicketingStation implements Station{
+	ClientQueue cq;
 	public ArrayList<TicketBox> tbs = new ArrayList<TicketBox>();
 	
 	public TicketingStation(){
+		cq = new ClientQueue();
 		tbs.add(new TicketBox());
 		tbs.add(new TicketBox());
 		tbs.add(new TicketBox());
+		System.out.println(cq);
 	}
+	
+	public void arrive(Client client) {
+		cq.enqueue(client);
+		try {
+			client.tb = this.match();
+			System.out.println(client.tb);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		client.tb.ticketing(client);
+		this.ticketFinish(client);
+	}
+	
 	
 	public synchronized TicketBox match() throws InterruptedException{
 		
 		Thread t = Thread.currentThread();
 		while(tbs.size() == 0){ //v.s. if
-			System.out.println("["+t.getName()+"]" + " is waiting.");
-			super.cq.enqueue((Client) t);
+			System.out.println("["+t.getName()+"]" + " is waiting.");	
 		}
 		
 		TicketBox tb = tbs.remove(0);
@@ -30,21 +45,20 @@ public class TicketingStation extends Station{
 		System.out.println("["+c.getName()+"]" + " returns "+ c.tb);
 		setDate(c);
 		tbs.add(c.tb);
-		this.notifyAll();// need to fit strategy
 	}
 
 	@Override
-	void calTimeInterval(Object ob) {
+	public void calTimeInterval(Object ob) {
 		if(ob instanceof Client){
 			((Client) ob).ticketWaitInterval = (int) (((Client)ob).dequeueTime - ((Client)ob).enqueueTime);
 		}
 	}
 
 	@Override
-	void setDate(Object ob) {
+	public void setDate(Object ob) {
 		if(ob instanceof Client){
 			((Client) ob).ticketFinish = new Date();
 		}
 	}
-	
+
 }
