@@ -1,0 +1,8 @@
+
+public class RemoteData {
+	public String name;
+	public String address;
+	
+	public RemoteData(){}
+	public RemoetData
+}

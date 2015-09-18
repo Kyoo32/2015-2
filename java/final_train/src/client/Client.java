@@ -83,13 +83,13 @@ public class Client extends Thread {
 	}
 
 	public void run(){
-		this.visitTimeSpent();
+		visitTimeSpent();
 		Main.ticS.arrive(this);
 	}
 
 	private void visitTimeSpent() {
 		try {
-			sleep(this.visitTime * 1000);
+			sleep(visitTime * 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -97,7 +97,7 @@ public class Client extends Thread {
 
 	public void ticketingTimeSpent() {
 		try {
-			sleep(this.ticketingInterval* 1000);
+			sleep(ticketingInterval* 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -117,7 +117,7 @@ public class Client extends Thread {
 	
 	public void trainGoing(){
 		try {
-			sleep(this.travelTime *1000);
+			sleep(travelTime *1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

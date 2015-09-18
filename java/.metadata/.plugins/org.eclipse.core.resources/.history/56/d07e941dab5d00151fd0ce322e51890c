@@ -1,0 +1,6 @@
+
+public class DataClassLoader {
+	public static Class loadClass(String url, String className){
+		
+	}
+}

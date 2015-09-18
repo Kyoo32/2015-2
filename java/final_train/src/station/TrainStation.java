@@ -9,9 +9,7 @@ public class TrainStation extends TimerTask implements Station {
 	ClientQueue cq;
 	
 	public TrainStation(){
-		//System.out.println("make q");
 		cq = new ClientQueue();
-		//System.out.println(cq);
 	}
 	
 	
@@ -50,11 +48,11 @@ public class TrainStation extends TimerTask implements Station {
 		for(int i=0; i<many; i++){
 			Client goC = cq.dequeue();
 			System.out.println(goC);
-			calTimeInterval(goC);	
-			goC.notify();
-			
+			calTimeInterval(goC);
+			goC.interrupt();
 		}
 		
+		//notifyAll();	
 	}
 
 }

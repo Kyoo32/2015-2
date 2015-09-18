@@ -19,13 +19,14 @@ public class TicketingStation implements Station{
 	public void arrive(Client client) {
 		cq.enqueue(client);
 		try {
-			client.tb = this.match();
+			client.tb = match();
+			cq.dequeue();
 			System.out.println(client.tb);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		client.tb.ticketing(client);
-		this.ticketFinish(client);
+		ticketFinish(client);
 	}
 	
 	
@@ -33,6 +34,7 @@ public class TicketingStation implements Station{
 		
 		Thread t = Thread.currentThread();
 		while(tbs.size() == 0){ //v.s. if
+			t.wait();
 			System.out.println("["+t.getName()+"]" + " is waiting.");	
 		}
 		
@@ -45,6 +47,7 @@ public class TicketingStation implements Station{
 		System.out.println("["+c.getName()+"]" + " returns "+ c.tb);
 		setDate(c);
 		tbs.add(c.tb);
+		notifyAll();
 	}
 
 	@Override

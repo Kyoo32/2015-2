@@ -33,9 +33,12 @@ public class ShowInfo {
 		*/
 		
 		Class c = Class.forName("B");
-		//replacable
+		//dynamic loading - replacable
 		
-		Object obj = c.newInstance();
+		Object obj = c.newInstance();//dynamic loading
+		B b =(B)obj; //if it has been for Class B in local;
+		
+		((A)obj).m(); //-> actually B by VM
 		System.out.println(obj);
 	}
 }	
