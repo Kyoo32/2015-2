@@ -5,33 +5,39 @@ import java.util.Date;
 import station.TicketBox;
 import main.Main;
 
-public class Client extends Thread {
+public class Client {
 	public int id;
 	public String name;
 	
-	public int visitTime;
+	public long newTime;
+	public int visitTimeSpent;
+	public long matchedTime;
 	public int ticketingInterval;
-	String departSName;
-	String destSName;
 	public int ticketWaitInterval;
+	
 	public int trainWaitInterval;
 	public int travelTime;
 	
+	String departSName;
+	String destSName;
+	
 	public long enqueueTime;
 	public long dequeueTime;
-	//?train running time spend?
+	
 	public Date ticketFinish;
 	public Date arrivalStation;
 	public TicketBox tb;
 	
-	public Client(int id, String name, int visitTime, int ticketingInterval, String departSName, String destSName){
+	public Client(int id, String name, int visitTimeSpent, int ticketingInterval, String departSName, String destSName){
 		this.id = id;
 		this.name = name;
-		this.visitTime = visitTime;
+		this.newTime = System.currentTimeMillis();
+		this.visitTimeSpent = visitTimeSpent * 1000;
 		this.ticketingInterval = ticketingInterval;
 		this.departSName = departSName;
 		this.destSName = destSName;
-		this.travelTime = calTravelTime();
+		this.travelTime = calTravelTime() * 1000;
+		
 	}
 	
 	private int calTravelTime() {
@@ -82,45 +88,32 @@ public class Client extends Thread {
 		}
 	}
 
+	
 	public void run(){
+		System.out.println(this);
 		visitTimeSpent();
 		Main.ticS.arrive(this);
 	}
 
 	private void visitTimeSpent() {
-		try {
-			sleep(visitTime * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		System.out.println("in" + (System.currentTimeMillis() - newTime ));
+		System.out.println("how" +(long)visitTimeSpent);
+		while((System.currentTimeMillis() - newTime ) < (long)visitTimeSpent);
+			//System.out.println("visiting");		
 	}
 
 	public void ticketingTimeSpent() {
-		try {
-			sleep(ticketingInterval* 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		while((System.currentTimeMillis() - matchedTime ) < (long)ticketingInterval);
+		
 		
 	}
-	public synchronized void trainWaitingTimeSpent() {
+	public void trainWaitingTimeSpent() {
+		System.out.println(this + "start to wait train");
 		
-		try {
-			System.out.println(this + "start to wait");
-			wait();
-			
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-				
 	}
 	
 	public void trainGoing(){
-		try {
-			sleep(travelTime *1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
 		Main.traS.setDate(this);
 	}
 	

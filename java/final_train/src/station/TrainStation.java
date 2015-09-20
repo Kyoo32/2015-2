@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import client.Client;
+import main.Main;
 
 public class TrainStation extends TimerTask implements Station {
 	ClientQueue cq;
@@ -37,22 +38,29 @@ public class TrainStation extends TimerTask implements Station {
 
 	@Override
 	public void run() {
+		if(cq.size() == 0)
+			return;
 		System.out.println("train departs");
 		trainDepart();
+		
 	}
 
 
 	private synchronized void trainDepart() {
 		int many = cq.size();
-		System.out.println(cq.size());
+		System.out.println("??" + cq.size());
+		if(cq.size() == 0)
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		for(int i=0; i<many; i++){
 			Client goC = cq.dequeue();
+			Main.gac.goingCq.enqueue(goC);
 			System.out.println(goC);
 			calTimeInterval(goC);
-			goC.interrupt();
-		}
-		
-		//notifyAll();	
+		}	
 	}
-
+	
 }

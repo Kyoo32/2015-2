@@ -17,10 +17,7 @@
 <fullyQualifiedTypeName name="station.TicketingStation"/>
 <fullyQualifiedTypeName name="station.TrainStation"/>
 <fullyQualifiedTypeName name="java.util.StringTokenizer"/>
-<fullyQualifiedTypeName name="main.Main"/>
-<fullyQualifiedTypeName name="java.util.TimerTask"/>
 <fullyQualifiedTypeName name="java.util.Timer"/>
-<fullyQualifiedTypeName name="client.Client"/>
 <fullyQualifiedTypeName name="fileIO.ClientOutput"/>
 <fullyQualifiedTypeName name="fileIO.ClientInput"/>
 <fullyQualifiedTypeName name="java.lang.reflect.Constructor"/>
@@ -28,4 +25,7 @@
 <fullyQualifiedTypeName name="java.net.URL"/>
 <fullyQualifiedTypeName name="java.lang.String"/>
 <fullyQualifiedTypeName name="java.lang.reflect.Method"/>
+<fullyQualifiedTypeName name="client.Client"/>
+<fullyQualifiedTypeName name="main.Main"/>
+<fullyQualifiedTypeName name="java.util.TimerTask"/>
 </qualifiedTypeNameHistroy>

@@ -13,6 +13,7 @@ public class ClientQueue {
 	
 	public void enqueue(Client c){
 		clientQ.add(c);
+		System.out.println(clientQ.size());
 		c.enqueueTime = System.currentTimeMillis(); 
 	}
 	
@@ -28,5 +29,9 @@ public class ClientQueue {
 
 	public int size() {	
 		return clientQ.size();
+	}
+	
+	public Client index(int i){
+		return clientQ.get(i);
 	}
 }

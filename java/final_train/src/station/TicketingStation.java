@@ -2,9 +2,11 @@ package station;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimerTask;
+
 import client.Client;
 
-public class TicketingStation implements Station{
+public class TicketingStation extends TimerTask implements Station{
 	ClientQueue cq;
 	public ArrayList<TicketBox> tbs = new ArrayList<TicketBox>();
 	
@@ -18,36 +20,29 @@ public class TicketingStation implements Station{
 	
 	public void arrive(Client client) {
 		cq.enqueue(client);
-		try {
-			client.tb = match();
-			cq.dequeue();
-			System.out.println(client.tb);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		client.tb.ticketing(client);
-		ticketFinish(client);
 	}
 	
-	
-	public synchronized TicketBox match() throws InterruptedException{
-		
-		Thread t = Thread.currentThread();
-		while(tbs.size() == 0){ //v.s. if
-			t.wait();
-			System.out.println("["+t.getName()+"]" + " is waiting.");	
-		}
-		
-		TicketBox tb = tbs.remove(0);
-		System.out.println("["+t.getName()+"]" + " uses "+ tb);
-		return tb;
+	public void run(){
+		match();	
 	}
 	
-	public synchronized void ticketFinish(Client c){
-		System.out.println("["+c.getName()+"]" + " returns "+ c.tb);
+	public void match() {
+		if(cq.size() == 0) return; 
+		while(tbs.size() == 0){ 
+			System.out.println("no ticketbox available");	
+		}
+		
+		Client matchedClient = cq.dequeue();
+		matchedClient.tb = tbs.remove(0);
+		System.out.println("[" + matchedClient+ "]" + " uses "+ matchedClient.tb);
+		matchedClient.tb.ticketing(matchedClient);
+		
+	}
+	
+	public void ticketFinish(Client c){
+		System.out.println("["+c+"]" + " returns "+ c.tb);
 		setDate(c);
 		tbs.add(c.tb);
-		notifyAll();
 	}
 
 	@Override

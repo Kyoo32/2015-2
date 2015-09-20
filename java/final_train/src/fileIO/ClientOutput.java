@@ -15,8 +15,8 @@ public class ClientOutput {
 		try {
 			fw = new FileWriter("clientArrived.txt", false);
 			bw = new BufferedWriter(fw);
-			bw.write("ID/NAME/VISIT STATION/WAITING TICKET/TICKETING/"
-					+ "TICKET FINISH/WAITING TRAIN/ARRIVAL");
+			bw.write("ID | NAME | VISIT STATION | WAITING TICKET | TICKETING |"
+					+ " TICKET FINISH | WAITING TRAIN | ARRIVAL");
 			bw.newLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -25,9 +25,9 @@ public class ClientOutput {
 	}
 	
 	public void writeOutput(Client c){
-		buffer =  Integer.toString(c.id) + " " + c.name + " " + Integer.toString(c.visitTime) + " " 
-				+ Integer.toString(c.ticketWaitInterval) + " " +Integer.toString(c.ticketingInterval) + " " 
-				+ c.ticketFinish.toString() + " " + Integer.toString(c.trainWaitInterval) + " "
+		buffer =  Integer.toString(c.id) + " | " + c.name + " | " + Integer.toString(c.visitTimeSpent) + " | " 
+				+ Integer.toString(c.ticketWaitInterval) + " | " +Integer.toString(c.ticketingInterval) + " | " 
+				+ c.ticketFinish.toString() + " | " + Integer.toString(c.trainWaitInterval) + " | "
 				+ c.arrivalStation.toString(); 
 				
 		try {
