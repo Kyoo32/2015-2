@@ -4,24 +4,23 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import client.Client;
+import client.ClientQueue;
 import main.Main;
 
 public class TrainStation extends TimerTask implements Station {
+	// 열차 출발, 고객 열차 대기 정보 관
 	ClientQueue cq;
 	
 	public TrainStation(){
 		cq = new ClientQueue();
 	}
 	
-	
 	void enqueue(Client c){
-		System.out.println("la");
 		cq.enqueue(c);
 		c.trainWaitingTimeSpent();	
-		System.out.println("lala");
 	}
 	
-		
+	
 	@Override
 	public void calTimeInterval(Object ob) {
 		if(ob instanceof Client){
@@ -41,14 +40,12 @@ public class TrainStation extends TimerTask implements Station {
 		if(cq.size() == 0)
 			return;
 		System.out.println("train departs");
-		trainDepart();
-		
+		trainDepart();	
 	}
 
 
 	private synchronized void trainDepart() {
 		int many = cq.size();
-		System.out.println("??" + cq.size());
 		if(cq.size() == 0)
 			try {
 				wait();
@@ -57,9 +54,9 @@ public class TrainStation extends TimerTask implements Station {
 			}
 		for(int i=0; i<many; i++){
 			Client goC = cq.dequeue();
-			Main.gac.goingCq.enqueue(goC);
-			System.out.println(goC);
 			calTimeInterval(goC);
+			Main.gac.goingCq.enqueue(goC);
+			//System.out.println(goC);	
 		}	
 	}
 	

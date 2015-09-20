@@ -9,7 +9,6 @@ public class Client {
 	public int id;
 	public String name;
 	
-	public long newTime;
 	public int visitTimeSpent;
 	public long matchedTime;
 	public int ticketingInterval;
@@ -31,9 +30,8 @@ public class Client {
 	public Client(int id, String name, int visitTimeSpent, int ticketingInterval, String departSName, String destSName){
 		this.id = id;
 		this.name = name;
-		this.newTime = System.currentTimeMillis();
-		this.visitTimeSpent = visitTimeSpent * 1000;
-		this.ticketingInterval = ticketingInterval;
+		this.visitTimeSpent = visitTimeSpent* 1000;
+		this.ticketingInterval = ticketingInterval * 1000;
 		this.departSName = departSName;
 		this.destSName = destSName;
 		this.travelTime = calTravelTime() * 1000;
@@ -90,32 +88,19 @@ public class Client {
 
 	
 	public void run(){
-		System.out.println(this);
-		visitTimeSpent();
 		Main.ticS.arrive(this);
 	}
 
-	private void visitTimeSpent() {
-		System.out.println("in" + (System.currentTimeMillis() - newTime ));
-		System.out.println("how" +(long)visitTimeSpent);
-		while((System.currentTimeMillis() - newTime ) < (long)visitTimeSpent);
-			//System.out.println("visiting");		
-	}
-
 	public void ticketingTimeSpent() {
-		while((System.currentTimeMillis() - matchedTime ) < (long)ticketingInterval);
-		
-		
+		while((System.currentTimeMillis() - matchedTime ) < (long)ticketingInterval);		
 	}
+	
 	public void trainWaitingTimeSpent() {
 		System.out.println(this + "start to wait train");
-		
 	}
 	
-	public void trainGoing(){
-		
+	public void trainArrived(){	
 		Main.traS.setDate(this);
 	}
-	
 	
 }

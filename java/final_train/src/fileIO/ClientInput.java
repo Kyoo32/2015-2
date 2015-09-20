@@ -10,7 +10,6 @@ public class ClientInput {
 	FileReader fr = null;
 	public BufferedReader br = null;
 
-	
 	public String s = null;
 	String[] sArr;
 	
@@ -22,12 +21,10 @@ public class ClientInput {
 			br = new BufferedReader(fr);
 		} catch(Exception e){	
 			e.printStackTrace();	
-		}
-		
+		}	
 	}
 	
-	public Client readInput(){
-		
+	public Client readInput(){	
 		// ReadFile.txt 에서 한줄씩 읽어서 BufferedRaeder에 저장한다.
 		sArr = new String(s).split("%");
 		Client c = new Client(Integer.parseInt(sArr[0]), sArr[1], 

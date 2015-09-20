@@ -2,11 +2,13 @@ package station;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimerTask;
 
 import client.Client;
+import client.ClientQueue;
+import main.Main;
 
-public class TicketingStation extends TimerTask implements Station{
+public class TicketingStation extends Thread implements Station{
+	//고객 받기, 고객과 매표소 연결, 고객 티켓팅 정보 관
 	ClientQueue cq;
 	public ArrayList<TicketBox> tbs = new ArrayList<TicketBox>();
 	
@@ -23,22 +25,28 @@ public class TicketingStation extends TimerTask implements Station{
 	}
 	
 	public void run(){
+		System.out.println("hello");
 		match();	
 	}
 	
 	public void match() {
 		if(cq.size() == 0) return; 
-		while(tbs.size() == 0){ 
+		if(tbs.size() == 0){ 
 			System.out.println("no ticketbox available");	
+		} else{
+			for(int i =0 ; i<cq.size() ; i++){
+				if(System.currentTimeMillis() - Main.startTime >= cq.index(0).visitTimeSpent){
+					Client matchedClient = cq.dequeue();
+					i--;
+					calTimeInterval(matchedClient);	
+					matchedClient.tb = tbs.remove(0);
+					System.out.println("[" + matchedClient+ "]" + " uses "+ matchedClient.tb);
+					matchedClient.tb.ticketing(matchedClient);
+				}
+			}
 		}
-		
-		Client matchedClient = cq.dequeue();
-		matchedClient.tb = tbs.remove(0);
-		System.out.println("[" + matchedClient+ "]" + " uses "+ matchedClient.tb);
-		matchedClient.tb.ticketing(matchedClient);
-		
 	}
-	
+		
 	public void ticketFinish(Client c){
 		System.out.println("["+c+"]" + " returns "+ c.tb);
 		setDate(c);

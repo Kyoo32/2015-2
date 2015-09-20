@@ -1,11 +1,11 @@
 package station;
 
 import java.util.TimerTask;
-
 import client.Client;
-import main.Main;
+import client.ClientQueue;
 
-public class GatherArrivedClient extends TimerTask implements Runnable {
+public class GatherArrivedClient extends TimerTask {
+	//고객 도착, 도착 정보 관
 	ClientQueue goingCq = new ClientQueue();
 	
 	@Override
@@ -16,16 +16,14 @@ public class GatherArrivedClient extends TimerTask implements Runnable {
 	public void gatherArrivedClient() {
 		int many = goingCq.size();
 		if(many == 0) return;
-		System.out.println(many);
 		for(int i=0; i < many; i++){
 			Client client = goingCq.index(i);
-			System.out.print(client);
-			System.out.println("/" + (System.currentTimeMillis() - client.dequeueTime));
 			if((System.currentTimeMillis() - client.dequeueTime) >= (long) client.travelTime) {
-				Main.traS.setDate(goingCq.dequeue());
+				goingCq.dequeue().trainArrived();
 				many--;
 				i--;
 			}
 		}
 	}
+
 }

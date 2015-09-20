@@ -21,7 +21,6 @@ INDEX VERSION 1.127+/Users/katekyuwon/Documents/git.NEXT2015_2/2015-2/java/.meta
 3332376974.index
 1040376109.index
 1511570354.index
-663323705.index
 524126782.index
 318950782.index
 3813562122.index

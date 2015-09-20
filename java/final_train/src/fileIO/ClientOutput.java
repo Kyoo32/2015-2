@@ -11,6 +11,7 @@ public class ClientOutput {
 	FileWriter fw = null;
 	BufferedWriter bw = null;
 	String buffer;
+	
 	public void openOutStream(){
 		try {
 			fw = new FileWriter("clientArrived.txt", false);
@@ -20,16 +21,14 @@ public class ClientOutput {
 			bw.newLine();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
+		}	
 	}
 	
 	public void writeOutput(Client c){
 		buffer =  Integer.toString(c.id) + " | " + c.name + " | " + Integer.toString(c.visitTimeSpent) + " | " 
 				+ Integer.toString(c.ticketWaitInterval) + " | " +Integer.toString(c.ticketingInterval) + " | " 
 				+ c.ticketFinish.toString() + " | " + Integer.toString(c.trainWaitInterval) + " | "
-				+ c.arrivalStation.toString(); 
-				
+				+ c.arrivalStation.toString(); 			
 		try {
 			bw.write(buffer);
 			bw.newLine();
