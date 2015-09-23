@@ -1,0 +1,20 @@
+package car;
+
+public class CarFactory {
+	
+	
+	private CarFactory(){
+		
+	}
+	
+
+	public Car createCar(String string) {
+
+	}
+
+	public static CarFactory getInstance() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

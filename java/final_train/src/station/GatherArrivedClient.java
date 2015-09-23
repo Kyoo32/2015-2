@@ -5,7 +5,7 @@ import client.Client;
 import client.ClientQueue;
 
 public class GatherArrivedClient extends TimerTask {
-	//고객 도착, 도착 정보 관
+	//고객 도착, 도착 정보 관리 
 	ClientQueue goingCq = new ClientQueue();
 	
 	@Override

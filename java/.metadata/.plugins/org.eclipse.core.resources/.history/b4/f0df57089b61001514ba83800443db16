@@ -1,0 +1,17 @@
+package employee;
+
+public class Employee {
+	
+	private int employeeID;
+	public String employeeName;
+
+	public Employee(String string) {
+		employeeName = string;
+	}
+
+
+	public char[] getEmployeeID() {
+		return null;
+	}
+
+}
