@@ -1,7 +1,0 @@
-package final_train.station;
-
-import java.util.ArrayList;
-
-public class ClientQueue {
-	protected ArrayList<Client> clientQ = new ArrayList<Client>();
-}

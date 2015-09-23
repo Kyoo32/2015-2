@@ -1,7 +1,0 @@
-package station;
-
-public abstract class Station {
-	protected ClientQueue cq;
-	
-	
-}

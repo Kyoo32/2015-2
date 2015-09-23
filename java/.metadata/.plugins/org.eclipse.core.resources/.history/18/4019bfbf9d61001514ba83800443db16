@@ -1,0 +1,18 @@
+package stream;
+
+class Textview {
+	String text = "Hello World";
+	
+	public void viewing(){
+		System.out.println(text);
+	}
+}
+public class Main {
+
+	public static void main(String[] args) {
+		Textview tx = new Textview();
+		
+		tx.viewing();
+	}
+
+}

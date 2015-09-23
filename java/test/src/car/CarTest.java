@@ -7,6 +7,7 @@ public class CarTest {
 				
 				Car sonata1 = factory.createCar("명찬차");
 				Car sonata2 = factory.createCar("명찬차");
+		
 				System.out.println(sonata1 == sonata2);
 				
 				Car avante1 = factory.createCar("태우차");

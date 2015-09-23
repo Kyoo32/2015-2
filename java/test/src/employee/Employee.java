@@ -2,10 +2,10 @@ package employee;
 
 public class Employee {
 	
-	GiveID giveId = GiveID.getInstance();
 	private int employeeID;
 	public String employeeName;
 
+	GiveID giveId = GiveID.getInstance();
 	public Employee(String string) {
 		employeeName = string;
 		employeeID = giveId.getId();

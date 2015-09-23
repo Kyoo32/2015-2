@@ -1,0 +1,21 @@
+package sorting;
+
+import java.io.IOException;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException {
+		
+		char chosen= (char) System.in.read();
+	
+		if(chosen == 'S'){
+			new ShellSort().sort(null);
+		}else if(chosen == 'Q'){
+			new QuickSort().sort(null);
+		}else if(chosen == 'M'){
+			new MergeSort().sort(null);
+		}
+		
+	}
+
+}

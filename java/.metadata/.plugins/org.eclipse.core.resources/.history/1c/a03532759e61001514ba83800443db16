@@ -1,0 +1,32 @@
+package stream;
+
+class Textview {
+	String text = "Hello World";
+	
+	public void viewing(){
+		System.out.println(text);
+	}
+}
+class ScrollTextview{
+	Textview tv;
+	String text = "Scrolling ";
+	
+	ScrollTextview(Textview tv){
+		this.tv = tv;
+	}
+	
+	public void viewing(){
+		System.out.print(text);
+		tv.viewing();
+	}
+}
+public class Main {
+
+	public static void main(String[] args) {
+		Textview tx = new Textview();
+		ScrollTextview st = new ScrollTextview(tx);
+		tx.viewing();
+		st.viewing();
+	}
+
+}
