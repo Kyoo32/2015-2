@@ -98,22 +98,49 @@ void process_cmd(char *cmdline)
 {
 	int argc;
 	char *argv[MAXARGS];
-
+   
 	// 명령 라인을 해석하여 인자 (argument) 배열로 변환한다.
 	argc = parse_line(cmdline, argv);
-	
+    if (argc == 0) return ;
+    
     /*
-        // 명령 확인용
+    // 명령 확인용
 	int i=0;
 	for(i=0; i <argc; i++){
-		printf("%s ",argv[i]);
+       
+		printf("@%s ",argv[i]);
 	}
 	printf("\n");
     */
+    
+    //리다이렉션 여부 확인하여 스트림 바꿔주기
+    int fd, saved_stdout = 1;
+    if( (argc>1 && !strcmp(argv[1], ">")) || ((argc>2) && !strcmp(argv[2], ">")) ) {
+        
+        //확인용
+        //printf("redirection\n");
+        fd = creat(argv[2], DEFAULT_FILE_MODE);
+        if(fd < 0) {
+            perror("file open error\n");
+            return ;
+        }
+        saved_stdout = dup(1);
+        dup2(fd, 1);
+        close(fd);
+    }
+    
+
 
 	/* 내장 명령 처리 함수를 수행한다. */
 	if (builtin_cmd(argc, argv) == 0) {
 
+        if((argc>1 && !strcmp(argv[1], ">")) || ((argc>2) && !strcmp(argv[2], ">"))){
+            //리다이렉션이 있을 경우
+            //표준출력스트림 재정의하기
+            dup2(saved_stdout, 1);
+            
+            
+        }
 		// 내장 명령 처리를 완료하고 리턴한다.
 		return;
 	}
@@ -122,18 +149,156 @@ void process_cmd(char *cmdline)
 	/*
 	 * 자식 프로세스를 생성하여 프로그램을 실행한다.
 	 */
+    
+    //  파이프 명령어 있을 경우 사용.
+    pid_t pid, pid2;
+    int pipefd[2];
+    
+    int hasPipe = 0;
+    int i=0;
+    
+    // 파이프 명령어 존재 확인
+    for(i=0; i< argc; i++){
+        if(!strcmp(argv[i], "|")){
+            hasPipe = 1;
+           // printf("pipe = %d \n", hasPipe); //파이프 존재 확인 용
+            break;
+        }
+    }
+    
+	
+    // 파이프 명령어 있을 떼, 파이프 생성
+    if(hasPipe){
+        if(pipe(pipefd) == -1) return ;
+    }
+    
+    // (첫번째 자식) 프로세스 생성
+    pid = fork();
+    if(pid < 0){
+        //fork error
+        fprintf(stderr, "1Fork failed");
+        return;
 
-	// 프로세스 생성
+    }
+    else if(pid ==0){ //(첫번째 자식) 프로세서
+        
+        if(*argv[argc-1] == '&') { // 백그라운드 모드 일때
+            /*
+            printf("[bg] %d : %s \n", getpid(), argv[0]);
+            int k = 0;
+            for(k=0;k<10;k++){
+                printf("background job...(%d)\n", k+1);
+                sleep(1);
+                
+            }
+             */
+             pid_t pid_bg = fork();
+            
+            if(pid_bg < 0){
+                //fork error
+                fprintf(stderr, "1Fork failed");
+                exit(-1);
+                return;
 
+            }
+            else if(pid_bg == 0){
+                printf("[bg] %d : %s \n", getppid(), argv[0]);
+                
+                char temp[20] = "which ";
+                strcat(temp, argv[0]);
+                
+                int ret = system(temp); //if exec has error, exit(-1);
+                //printf("ret = %d", ret); //for debugging
+                
+                if(ret != 0) exit(-1);
+                
+                if(execvp(argv[0], argv) < 0 ) {
+                    fprintf(stderr, "exec error \n");
+                    exit(-1);
+                    return;
+                };
+            }
+            
+            return ;
+        }
+        else {
+            
+            if(hasPipe){ // 파이프 명령어 있을 때
+             
+                close(pipefd[0]);
 
-	// 자식 프로세스에서 프로그램 실행
-
-
+                if( dup2(pipefd[1], STDOUT_FILENO) < 0 ) {
+                    fprintf(stderr, "pipefd duplicatiion error\n");
+                    return;
+                };
+                // 파이프 이전 명령어, 임시 저장
+                int j=0;
+                char* temp[MAXARGS];
+                for(j=0; j<i; j++){
+                    temp[j] = argv[j];
+                }
+                temp[j] = NULL;
+                if(execvp(temp[0], temp) < 0 ) {
+                    fprintf(stderr, "exec error : 1\n");
+                    return;
+                };
+                fprintf(stderr, "I can't be here\n");
+                
+            }
+            
+            else{ //파이프 명령어 없을 때
+                execvp(argv[0], argv);
+            }
+        }
+        
+    }
 	// 파이프 실행이면 자식 프로세스를 하나 더 생성하여 파이프로 연결
-
-
-	// foreground 실행이면 자식 프로세스가 종료할 때까지 기다린다.
-
+    if(hasPipe){
+        pid2 = fork();
+    }
+    if(pid2<0){
+        // fork error
+        fprintf(stderr, "Fork failed");
+        return;
+    }
+    if(pid2 == 0){
+        close(pipefd[1]);
+        
+        if(dup2(pipefd[0], STDIN_FILENO) <0 ){
+            fprintf(stderr, "pipefd duplication error\n");
+            return;
+        };
+        
+        //파이프 이후 명령어 임시 배열 저장
+        int j=0;
+        char* temp[MAXARGS];
+        for(j=i+1; j<argc; j++){
+            temp[j-(i+1)] = argv[j];
+        }
+        temp[j-(i+1)] = NULL;
+        if(execvp(temp[0], temp) < 0 ) {
+            fprintf(stderr, "exec error : 2\n");
+            return;
+        };
+    }
+	
+    if(hasPipe){ //파이프 실행 시 부모 프로세스가 파이프를 닫음
+        close(pipefd[0]);
+        close(pipefd[1]);
+        waitpid(pid2, NULL, 0);
+    }
+        
+    if( *argv[argc-1] == '&'){ // foreground 실행이면 자식 프로세스가 종료할 때까지 기다린다.
+        while( waitpid(-1, NULL, WNOHANG)!=0 );
+    }
+    else{
+        waitpid(pid,NULL,0);
+    }
+    
+    //리다이렉션 시, 표준출력스트림 재정의하기
+    if((argc>1 && !strcmp(argv[1], ">")) || ((argc>2) && !strcmp(argv[2], ">"))){
+        dup2(saved_stdout, 1);
+    }
 	return;
 }
 
@@ -159,7 +324,9 @@ int parse_line(char *cmdline, char **argv)
         token = strtok(NULL, delim);
         
     }
+    argv[i] = NULL;
     argc = i;
+    
     return argc;
 }
 
@@ -173,10 +340,24 @@ int parse_line(char *cmdline, char **argv)
  */
 int builtin_cmd(int argc, char **argv)
 {
-	// 내장 명령어 문자열과 argv[0]을 비교하여 각각의 처리 함수 호출
+    /*
+    //리다이렉션 여부 확인하여 스트림 바꿔주기
+    int fd, saved_stdout = 1;
+    if(argc>1 && !strcmp(argv[1], ">")){
     
+        
+        fd = creat(argv[2], DEFAULT_FILE_MODE);
+        if(fd < 0) {
+            perror("file open error\n");
+            return -1;
+        }
+        saved_stdout = dup(1);
+        dup2(fd, 1);
+        close(fd);
+    }
+     */
     
-    
+    // 내장 명령어 문자열과 argv[0]을 비교하여 각각의 처리 함수 호출
 	if ( (!strcmp(argv[0], "quit") || (!strcmp(argv[0], "exit")))){
        		exit(0);
 	}
@@ -209,11 +390,18 @@ int builtin_cmd(int argc, char **argv)
         if( nResult == -1) printf("concatenate error\n");
     }
     else{
-        printf("no such command\n");
+        //printf("no such command\n");
+        return 1;
     }// 내장 명령어가 아님.
     
+    /*
+    //리다이렉션 시, 표준출력스트림 재정의하기
+    if(argc>1 && !strcmp(argv[1], ">")){
+        dup2(saved_stdout, 1);
+    }
+     */
     
-	return 1;
+	return 0;
 }
 
 
@@ -236,28 +424,13 @@ int list_files(int argc, char **argv)
     char buff[40];
     time_t t = (time_t)NULL;
     struct tm lt;
-    int fd, saved_stdout = 1;
     
     // 인자가 3개 초과면 에러처리
     if(argc > 3) {
         perror("too many arguments\n");
         return -1;
     }
-    
-    //리다이렉션 여부 확인하여 스트림 바꿔주기
-    if(argc>1 && !strcmp(argv[1], ">")){
-        
-        
-        fd = creat(argv[2], DEFAULT_FILE_MODE);
-        if(fd < 0) {
-            perror("file open error\n");
-            return -1;
-        }
-        saved_stdout = dup(1);
-        dup2(fd, 1);
-        close(fd);
-    }
-    
+   
     
     dp = opendir(".");
     if (dp == NULL){
@@ -289,11 +462,6 @@ int list_files(int argc, char **argv)
         }
     }
     closedir(dp);
-    
-    //리다이렉션 시, 표준출력스트림 재정의하기
-    if(argc>1 && !strcmp(argv[1], ">")){
-        dup2(saved_stdout, 1);
-    }
     
 	return 0;
 }
@@ -471,7 +639,7 @@ int concatenate(int argc, char** argv){
         return -1;
     
     while(1){
-        if(  (rd_count = read(in_fd, buffer, 2048) ) <= 0  )
+        if(  (rd_count = read(in_fd, buffer, 1024) ) <= 0  )
             break;
         if( (write(standard_out, buffer, rd_count) <= 0 ))
             return -1;
@@ -485,7 +653,11 @@ int concatenate(int argc, char** argv){
     return 0;
 }
 
-//3단계 구현 목표
+/*
+ * copy_directory
+ * dcp [src] [new name]
+ *
+ */
 int copy_directory(int argc, char **argv)
 {
     
