@@ -9,4 +9,9 @@ NEXT 2015 second semester, 2015 jul-sep
 4. Computer graphics
 5. humanities
 
+## another study
+1. python
+2. ruby
+
 ## wiki
+[contents](https://github.com/Kyoo32/NEXT2015-2/wiki)
