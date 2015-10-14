@@ -10,7 +10,7 @@ NEXT 2015 second semester, 2015 jul-sep
 5. humanities
 
 ## another study
-1. python
+1. python : [docs](https://docs.google.com/document/d/1gsyEiRCylki9qMDxgs4D6LAxMimZuO2FHRgBiZbqHDE/edit?usp=sharing)
 2. ruby
 
 ## wiki
